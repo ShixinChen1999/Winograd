@@ -179,13 +179,17 @@ class Padding extends Module with Config{
       addr:=addr-2.U
     }
   }.elsewhen(io.in_valid&&(cnt_col===(IN_HIGHT-1).U)){
-    when(cnt===(IN_WIDTH-1).U) {
+    when(cnt===(IN_WIDTH-2).U) {
       addr := addr - IN_WIDTH.U - 3.U
     }
   }.elsewhen(io.in_valid){
     when(cnt===(IN_WIDTH-1).U){
       addr:=addr-2.U
     }
+  }
+
+  when(addr===0.U){
+    addr:=0.U
   }
 
 
@@ -344,8 +348,8 @@ class data_trans extends Module with Config {
   rank_change.io.dIn(5):=transfer.io.io_RAM_OUT_5
 
   ///////////////////winograd
-  winograd.io.mac_in_valid:=ShiftRegister(transfer.io.io_out_valid,4)
-  dG_in.io.input_valid:=ShiftRegister(transfer.io.io_out_valid,4+8)
+  winograd.io.mac_in_valid:=ShiftRegister(transfer.io.io_out_valid,5)
+  dG_in.io.input_valid:=ShiftRegister(transfer.io.io_out_valid,5+8)
 
   when(winograd.io.mac_in_valid){
     for(i <- 0 until(4)){

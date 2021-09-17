@@ -12,7 +12,7 @@ trait Config {
   val RAM_NUM=2
   val RAM_GRP=3
   val OUT_NUM=4
-  val LATANCY=4*IN_WIDTH
+  val LATANCY=4*(IN_WIDTH+2)
 
   val BT_WIDTH=8
   val BT_WIDTH_1=8
@@ -133,9 +133,6 @@ class Transfer2 extends Module with Config{
 
   //先存储零
 
-
-
-
   val (cnt,cnt_valid)=Counter(io.input_valid,(IN_WIDTH+PADDING))
 
   //行计数器
@@ -145,91 +142,10 @@ class Transfer2 extends Module with Config{
   //val (cnt_1,cnt_valid_1)=Counter(io.input_valid,IN_HIGHT*IN_WIDTH)
   val U_ram=VecInit(Seq.fill(6)(Module(new DualPortRAM).io))//能否使用二维数组
 
-//NOT Padding
-// when(io.input_valid){
-//   when(cnt_ram===0.U){
-//     ram_write(U_ram(0),cnt,io.dIn)
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-//   }.elsewhen(cnt_ram===1.U){
-//     ram_write(U_ram(1),cnt,io.dIn)
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-//   }.elsewhen(cnt_ram===2.U){
-//     ram_write(U_ram(2),cnt,io.dIn)
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-//   }.elsewhen(cnt_ram===3.U) {
-//     ram_write(U_ram(3), cnt, io.dIn)
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-//   }.elsewhen(cnt_ram===4.U){
-//     ram_write(U_ram(4), cnt, io.dIn)
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(5))
-//   }.elsewhen(cnt_ram===5.U){
-//     ram_write(U_ram(5), cnt, io.dIn)
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//   }.otherwise{
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-//   }
-// }.otherwise{
-//     ram_keep(U_ram(0))
-//     ram_keep(U_ram(1))
-//     ram_keep(U_ram(2))
-//     ram_keep(U_ram(3))
-//     ram_keep(U_ram(4))
-//     ram_keep(U_ram(5))
-// }
-
-
-//  val start=RegInit(false.B)
-//  val end=RegInit(false.B)
-//  //判断第一行与最后一行
-//  when(io.input_valid){
-//    when(cnt_col===0.U){
-//      start:=true.B
-//    }.otherwise{
-//      start:=false.B
-//    }
-//    when(cnt_col===(IN_HIGHT+1).U){
-//      end:=true.B
-//    }.otherwise{
-//      end:=false.B
-//    }
-//  }
-
 
   when(io.input_valid){
     when(cnt_ram===0.U){
-
-
-          ram_write(U_ram(0),cnt,io.dIn)
-
+        ram_write(U_ram(0),cnt,io.dIn)
         ram_keep(U_ram(1))
         ram_keep(U_ram(2))
         ram_keep(U_ram(3))
@@ -299,111 +215,30 @@ class Transfer2 extends Module with Config{
     ram_keep(U_ram(4))
     ram_keep(U_ram(5))
   }
-//  when(cnt_ram===0.U||cnt_ram===1.U){//在六个buffer之间进行信息存储
-//    when((cnt_col)%2.U===0.U&&cnt%2.U===0.U){//两个ram之间交替存储01为一组，23为一组，45一组
-//      ram_write(U_ram(0),cnt,io.dIn)
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.elsewhen((cnt_col)%2.U===0.U&&cnt%2.U===1.U){
-//      ram_write(U_ram(1),cnt,io.dIn)
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.elsewhen((cnt_col)%2.U===1.U&&cnt%2.U===0.U){//cnt等价于地址
-//      ram_write(U_ram(1),cnt,io.dIn)
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.otherwise{
-//      ram_write(U_ram(0),io.dIn_addr%IN_WIDTH.U,io.dIn)
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }
-//  }.elsewhen(cnt_ram===2.U||cnt_ram===3.U){
-//    when((cnt_col)%2.U===0.U&&cnt%2.U===0.U){//两个ram之间交替存储
-//      ram_write(U_ram(2),io.dIn_addr%IN_WIDTH.U,io.dIn)
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.elsewhen((cnt_col)%2.U===0.U&&cnt%2.U===1.U){
-//      ram_write(U_ram(3),io.dIn_addr%IN_WIDTH.U,io.dIn)
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.elsewhen((cnt_col)%2.U===1.U&&cnt%2.U===0.U){//cnt等价于地址
-//      ram_write(U_ram(3),io.dIn_addr%IN_WIDTH.U,io.dIn)
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }.otherwise{
-//      ram_write(U_ram(2),io.dIn_addr%IN_WIDTH.U,io.dIn)
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(5))
-//    }
-//  }.otherwise{
-//    when((cnt_col)%2.U===0.U&&cnt%2.U===0.U){//两个ram之间交替存储
-//      ram_write(U_ram(4),io.dIn_addr%(IN_WIDTH.U),io.dIn)
-//      ram_keep(U_ram(5))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//    }.elsewhen((cnt_col)%2.U===0.U&&cnt%2.U===1.U){
-//      ram_write(U_ram(5),io.dIn_addr%(IN_WIDTH.U),io.dIn)
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//    }.elsewhen((cnt_col)%2.U===1.U&&cnt%2.U===0.U){//cnt等价于地址
-//      ram_write(U_ram(5),io.dIn_addr%(IN_WIDTH.U),io.dIn)
-//      ram_keep(U_ram(4))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//    }.otherwise{
-//      ram_write(U_ram(4),io.dIn_addr%(IN_WIDTH.U),io.dIn)
-//      ram_keep(U_ram(5))
-//      ram_keep(U_ram(2))
-//      ram_keep(U_ram(3))
-//      ram_keep(U_ram(0))
-//      ram_keep(U_ram(1))
-//    }
-//  }
-
-  io.out_valid:=ShiftRegister(io.input_valid,LATANCY+1)
 
 
-  val (cnt2,cnt2_valid)=Counter(io.out_valid,2)//两个周期读一拍
-  val (cnt_ram_out,cnt_ram_out_valid)=Conter_pause(io.out_valid,(IN_WIDTH+PADDING).U,cnt2_valid)//三种模式
-  val (cnt_out,cnt_out_valid)=Conter_pause(io.out_valid,RAM_GRP.U,cnt_ram_out_valid)//三种模式
+  val (cnt_inter,cnt_inter_valid)=Counter(io.input_valid,LATANCY)
+  val out_valid=RegInit(false.B)
 
+  when(cnt_inter_valid){
+    out_valid:=true.B
+  }
+
+  when(out_valid){
+    out_valid:=true.B
+  }
+
+  io.out_valid:=RegNext(out_valid)
+  val (cnt2,cnt2_valid)=Counter(out_valid,2)//两个周期读一拍
+  val (cnt_ram_out,cnt_ram_out_valid)=Conter_pause(out_valid,(IN_WIDTH+PADDING).U,cnt2_valid)//三种模式
+  val (cnt_out,cnt_out_valid)=Conter_pause(out_valid,RAM_GRP.U,cnt_ram_out_valid)//三种模式
 
   val out_temp=Reg(Vec(4,UInt(IN_BIT_WIDTH.W)))
   //VecInit(Seq.fill(4)(0.U(IN_BIT_WIDTH.W)))
 
 
-  when(io.out_valid){
+
+  when(out_valid){
     when(cnt_out===0.U){
       out_temp(0):=ram_read(U_ram(0),cnt_ram_out)
       out_temp(1):=ram_read(U_ram(1),cnt_ram_out)
@@ -581,7 +416,18 @@ class Transfer extends Module with Config{
     }
   }
 
-  io.out_valid:=ShiftRegister(io.input_valid,LATANCY)
+
+  val (cnt_inter,cnt_inter_valid)=Counter(io.input_valid,LATANCY)
+
+  when(cnt_inter_valid){
+    io.out_valid:=true.B
+  }
+
+  when(io.out_valid){
+    io.out_valid:=true.B
+  }
+
+
 
   val (cnt_out,cnt_out_valid)=Counter(io.out_valid,IN_WIDTH*IN_HIGHT)//两个周期读一拍
 

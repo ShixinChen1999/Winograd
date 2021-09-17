@@ -136,7 +136,7 @@ class Pipe_out extends Module with Config{
     data_valid:=false.B
   }
 
-  val (cnt_inter,cnt_inter_valid)=Counter(io.in_valid,2*IN_WIDTH+4)
+  val (cnt_inter,cnt_inter_valid)=Counter(io.in_valid,2*IN_WIDTH+5)
   val start=RegInit(false.B)
   when(cnt_inter_valid){
     start:=true.B
