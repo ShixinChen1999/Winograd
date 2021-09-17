@@ -306,7 +306,7 @@ module Pipe_out( // @[:@250.2]
   assign _T_174 = value == 2'h1; // @[Pipeout.scala 133:25:@334.4]
   assign _T_175 = _T_172 | _T_174; // @[Pipeout.scala 133:19:@335.4]
   assign _T_176 = _T_175 & io_in_valid; // @[Pipeout.scala 133:32:@336.4]
-  assign _T_182 = value_1 == 11'h503; // @[Counter.scala 34:24:@345.6]
+  assign _T_182 = value_1 == 11'h504; // @[Counter.scala 34:24:@345.6]
   assign _T_184 = value_1 + 11'h1; // @[Counter.scala 35:22:@346.6]
   assign _T_185 = _T_184[10:0]; // @[Counter.scala 35:22:@347.6]
   assign _GEN_2 = _T_182 ? 11'h0 : _T_185; // @[Counter.scala 37:21:@349.6]
@@ -340,12 +340,12 @@ module Pipe_out( // @[:@250.2]
   assign _GEN_96 = _T_264 ? 1'h0 : _T_268; // @[Pipeout.scala 216:28:@576.6]
   assign _GEN_103 = _T_264 ? 1'h0 : _GEN_75; // @[Pipeout.scala 216:28:@576.6]
   assign _GEN_110 = _T_264 ? 1'h0 : _GEN_82; // @[Pipeout.scala 216:28:@576.6]
-    
-  assign io_dOut =  _T_276 ? DualPortRAM_3_io_dataOut ://21'b0;
-                                 (_T_272 ? DualPortRAM_2_io_dataOut :
-                                 (_T_268? DualPortRAM_1_io_dataOut :
-                                 (_T_264? DualPortRAM_io_dataOut:21'b0)));
 
+
+  assign io_dOut =  _T_276 ? DualPortRAM_3_io_dataOut ://21'b0;
+                                       (_T_272 ? DualPortRAM_2_io_dataOut :
+                                       (_T_268? DualPortRAM_1_io_dataOut :
+                                       (_T_264? DualPortRAM_io_dataOut:21'b0)));
   assign io_out_valid = _T_252 ? _GEN_40 : 1'h0; // @[Pipeout.scala 205:19:@564.8 Pipeout.scala 207:19:@567.8 Pipeout.scala 210:17:@571.6]
   assign DualPortRAM_io_output_valid = start ? _T_264 : 1'h0; // @[Pipeout.scala 129:20:@293.4]
   assign DualPortRAM_io_output_addr = value_2; // @[Pipeout.scala 129:20:@294.4]

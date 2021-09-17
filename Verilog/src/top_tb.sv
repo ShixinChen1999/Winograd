@@ -167,7 +167,7 @@ end
 
 always  @(posedge clk) //begin#20
 begin
-  if(addr<360*640&&send_valid)begin
+  if(addr<(360*640)&&send_valid)begin
   data_out  =  mem[addr][7:0];
    $display("%x", data_out );
   addr = addr + 20'd1;
