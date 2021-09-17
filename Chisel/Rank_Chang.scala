@@ -60,38 +60,39 @@ class Rank_Change extends Module with Config {
 
 
 
-  val in_valid = io.input_valid
+  //val in_valid = io.input_valid
   //val (cnt,cnt_valid)=Counter(in_valid,IN_WIDTH*IN_HIGHT)
 //  val cnt_out_1=cnt/2.U//慢速情况
 //  val cnt_out=cnt_out_1-1.U
-  val (cnt1,cnt1_valid)=Counter(in_valid,2)
-  val (cnt_in, cnt_in_valid)=Conter_pause(in_valid,(IN_WIDTH+PADDING).U,cnt1_valid)//0-17
+  val start=RegNext(io.input_valid)
+  val (cnt1,cnt1_valid)=Counter(start,2)
+  val (cnt_in, cnt_in_valid)=Conter_pause(start,(IN_WIDTH+PADDING).U,cnt1_valid)//0-17
+  val (cnt_out,cnt_out_valid)=Conter_pause(start,RAM_GRP.U,cnt_in_valid)//三种模式
 
-
-  val (cnt_out,cnt_out_valid)=Conter_pause(in_valid,RAM_GRP.U,cnt_in_valid)//三种模式
-
-  when(in_valid){
-          when(cnt_out===0.U){//对应读取1，2，3，4 ram
-              out_temp(0):=io.dIn(0)
-              out_temp(1):=io.dIn(1)
-              out_temp(2):=io.dIn(2)
-              out_temp(3):=io.dIn(3)
-          }.elsewhen(cnt_out===1.U){
-              out_temp(0):=io.dIn(2)
-              out_temp(1):=io.dIn(3)
-              out_temp(2):=io.dIn(4)
-              out_temp(3):=io.dIn(5)
-          }.elsewhen(cnt_out===2.U){
-              out_temp(0):=io.dIn(4)
-              out_temp(1):=io.dIn(5)
-              out_temp(2):=io.dIn(0)
-              out_temp(3):=io.dIn(1)
-          }
-        }.otherwise{
-          for(i <- 0 until(4)){
-            out_temp(i):=RegNext(out_temp(i))
-          }
-        }
+  //when(in_valid){
+  //{
+    when(cnt_out === 0.U) { //对应读取1，2，3，4 ram
+      out_temp(0) := io.dIn(0)
+      out_temp(1) := io.dIn(1)
+      out_temp(2) := io.dIn(2)
+      out_temp(3) := io.dIn(3)
+    }.elsewhen(cnt_out === 1.U) {
+      out_temp(0) := io.dIn(2)
+      out_temp(1) := io.dIn(3)
+      out_temp(2) := io.dIn(4)
+      out_temp(3) := io.dIn(5)
+    }.elsewhen(cnt_out === 2.U) {
+      out_temp(0) := io.dIn(4)
+      out_temp(1) := io.dIn(5)
+      out_temp(2) := io.dIn(0)
+      out_temp(3) := io.dIn(1)
+    }
+ // }
+//        }.otherwise{
+//          for(i <- 0 until(4)){
+//            out_temp(i):=RegNext(out_temp(i))
+//          }
+//        }
 
 
 
@@ -183,22 +184,25 @@ class Rank_Change extends Module with Config {
 //
 //  }
 
+
+  val (cnt_rank, cnt_rank_valid)=Conter_pause(start,2.U,cnt1_valid)
   val reg_1=VecInit(Seq.fill(4)(0.S(OUT_BIT_WIDTH.W)))
   val reg_2=VecInit(Seq.fill(4)(0.S(OUT_BIT_WIDTH.W)))
   val reg_3=VecInit(Seq.fill(4)(0.S(OUT_BIT_WIDTH.W)))
   val reg_4=VecInit(Seq.fill(4)(0.S(OUT_BIT_WIDTH.W)))
   val reg_end=VecInit(Seq.fill(8)(0.S(OUT_BIT_WIDTH.W)))
 
-  val (cnt_rank, cnt_rank_valid)=Conter_pause(in_valid,2.U,cnt1_valid)
 
-  when(in_valid){
+
+
+  when(start){
     when(cnt_rank===0.U){
       for(i <- 0 until(4)){
-        reg_3(i):=out_temp(i)
+        reg_3(i):=RegNext(out_temp(i))
       }
     }.elsewhen(cnt_rank===1.U){
       for(i <- 0 until(4)){
-        reg_4(i):=out_temp(i)
+        reg_4(i):=RegNext(out_temp(i))
       }
     }
     for(i <- 0 until(4)) {
@@ -207,18 +211,20 @@ class Rank_Change extends Module with Config {
     }
   }
 
+
   //io.output_valid:=ShiftRegister(in_valid,4)
   when(cnt_in===0.U||cnt_in===1.U){
     io.output_valid:=false.B
   }.otherwise{
     io.output_valid:=true.B
   }
+
   val (cnt_end,cnt_valid_2)=Counter(io.output_valid,4)
 
   when(io.output_valid){
     when(cnt_end===0.U){
       for(i <- 0 until 4){
-        io.dOut(i):=reg_1(i)
+        io.dOut(i):=reg_2(i)
       }
     }.elsewhen(cnt_end===1.U){
       for(i <- 0 until 4){
@@ -226,11 +232,16 @@ class Rank_Change extends Module with Config {
       }
     }.elsewhen(cnt_end===2.U){
       for(i <- 0 until 4){
-        io.dOut(i):=ShiftRegister(reg_3(i),2)
+        //io.dOut(i):=reg_3(i)
+        io.dOut(i):=ShiftRegister(reg_3(i),1)
+      }
+    }.elsewhen(cnt_end===3.U){
+      for(i <- 0 until 4){
+        io.dOut(i):=reg_4(i)
       }
     }.otherwise{
       for(i <- 0 until 4){
-        io.dOut(i):=reg_4(i)
+        io.dOut(i):=0.S
       }
     }
   }.otherwise{
@@ -345,7 +356,7 @@ class matrix extends Module with Config {//0123 2345 4567 6789
 
       for(i <- 0 until(4)){
         reg_3(i):=io.dIn(i)
-        reg_1(i):=ShiftRegister(reg_3,2)
+        reg_1(i):=ShiftRegister(reg_3,1)
       }
     }.elsewhen(cnt>=2.U&&cnt%2.U===1.U){
       for(i <- 0 until(4)){

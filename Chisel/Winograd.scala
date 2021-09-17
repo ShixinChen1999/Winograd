@@ -594,7 +594,7 @@ class Winograd extends Module with Config{
   //dData_pipe(1):=res_AT2._2(3)
   val pip_out=Pipe_out(res_AT2._1,res_AT2._2(3),res_AT2._2(2))
 
-  io.out_valid:=RegNext(pip_out._1)
+  io.out_valid:=ShiftRegister(pip_out._1,2)
   io.dOut:=pip_out._2
 
   //out:=ShiftRegister(res_AT2._2(2),1)
