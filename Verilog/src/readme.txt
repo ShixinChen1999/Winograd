@@ -1,1 +1,1 @@
-数据计算有时存在错误，主要原因为送入模块时出现问题
+Fixed the problems, and the computing results are correct.
